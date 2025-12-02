@@ -4,9 +4,9 @@ const csv = require('csv-parser');
 
 // Configuração
 const arquivoOriginal = 'contatos-ewerton.csv'; // Altere aqui para o arquivo desejado
-const apiUrl = 'https://gvitta.cliqcrm.com.br/int/addContact';
-const queueId = 10;
-const apiKey = 'Gvitta@!#10';
+const apiUrl = 'URL_CLIENTE';
+const queueId = ID_FILA;
+const apiKey = 'API_KEY';
 
 // Variável para armazenar os dados do CSV
 const dados = [];
@@ -134,3 +134,4 @@ async function processarPlanilha() {
 
 // Executa
 processarPlanilha();
+
