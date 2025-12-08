@@ -1,15 +1,15 @@
 const axios = require('axios');
 
-// 🔐 Copie o token do header Authorization da requisição DELETE
-const BEARER_TOKEN = 'Bearer TOKEN';
+// 🔐 Copie o token do header Authorization da requisição DELETE (pegar no momento que excluir o contato através do console da página pois tem duração)
+const BEARER_TOKEN = 'TOKEN';
 
 // 🧾 ID inicial e final dos contatos que deseja deletar
-const ID_INICIAL = 16704;
-const ID_FINAL = 16902;
+const ID_INICIAL = ID_INICIAL_CONTATO_EXCLUIR;
+const ID_FINAL = ID_FINAL_CONTATO_EXCLUIR;
 
 async function deletarContato(id) {
   try {
-    const response = await axios.delete(`https://nomeservidor.atenderbem.com/contacts/${id}`, {
+    const response = await axios.delete(`https://CLIENTE.atenderbem.com/contacts/${id}`, {
       headers: {
         Authorization: BEARER_TOKEN,
         Accept: 'application/json, text/plain, */*',

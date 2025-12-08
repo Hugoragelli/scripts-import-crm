@@ -2,32 +2,22 @@ const XLSX = require('xlsx');
 const axios = require('axios');
 
 // Configuração
-const arquivoOriginal = 'brian1.xlsx';
-const apiUrl = 'https://toro.atenderbem.com/int/createOpportunity';
-const queueId = 10;
-const apiKey = '123';
+const arquivoOriginal = 'NOME_DO_ARQUIVO.xlsx';
+const apiUrl = 'https://CLIENTE.atenderbem.com/int/createOpportunity';
+const queueId = ID_FILA;
+const apiKey = 'API_KEY';
 
-// Mapeamento dos campos do formsdata
+// Mapeamento dos campos do formsdata (Campos personalizados dos formulários criados)
 const formsMap = {
-  "bc3edef0": "Websites",
-  "c7ee0d20": "Matriz ou filial",
-  "d10a8280": "Faixa de Faturamento",
-  "daf851a0": "CNAE fiscal",
-  "caaaaa30": "CNAEs secundários",
-  "dce19920": "Socios",
-  "fc507160": "Município",
-  "09eb9110": "UF",
-  "15c94950": "Logradouro",
-  "29ac3a90": "Complemento",
-  "3a477ae0": "Número",
-  "4804a180": "CEP",
-  "01342cd0": "CNPJ"
+  "bc3edef0": "Websites"
 };
 
+//Função para tratamento do nome de acordo com a coluna
 function formatarNome(texto) {
   return texto ? texto.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()).trim() : '';
 }
 
+//Função de delay, para esperar entre uma requisição e outra
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -36,6 +26,7 @@ const workbook = XLSX.readFile(arquivoOriginal);
 const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 const dados = XLSX.utils.sheet_to_json(worksheet);
 
+//Função que percorre as linhas da planilha, chama as funções de tratamento e realiza a chamada para o endpoint de criação de oportunidade
 async function processarPlanilha() {
   for (const [index, linha] of dados.entries()) {
     if (index < 0) continue;

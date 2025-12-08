@@ -2,11 +2,11 @@ const XLSX = require('xlsx');
 const axios = require('axios');
 
 // Configuração
-const arquivoOriginal = 'LEADS SET OUT NOV 2025.xlsx';
-const apiUrl = 'https://target.cliqcrm.com.br/int/addContact';
-const queueId = 15;
-const apiKey = 'Target@!#19';
-const linhaInicial = 301; // Define a partir de qual linha começar (1 = primeira linha de dados)
+const arquivoOriginal = 'NOME_DO_ARQUIVO.xlsx';
+const apiUrl = 'https://CLIENTE.cliqcrm.com.br/int/addContact';
+const queueId = ID_FILA;
+const apiKey = 'API_KEY';
+const linhaInicial = LINHA_INICIAL_CONTATO_IMPORTAR; // Define a partir de qual linha começar (1 = primeira linha de dados)
 
 // Lê a planilha
 const workbook = XLSX.readFile(arquivoOriginal);
@@ -43,9 +43,10 @@ async function processarPlanilha() {
     // Ajusta o array para começar da linha especificada
     const dadosFiltrados = dados.slice(linhaInicial - 1);
     
+    // Percorre as linhas da planilha pegando os dados de acordo com o nome da coluna 
     for (const [index, linha] of dadosFiltrados.entries()) {
         const linhaReal = index + linhaInicial + 1; // +1 por causa do cabeçalho
-        const nome = linha['nome cliente'];
+        const nome = linha['nome cliente']; // Pega o telefone na coluna informada
         const celularTratado = adicionarCodigoPais(linha['telefone cliente']); // Adiciona 55 e usa coluna já tratada
 
         if (!nome || !celularTratado) {

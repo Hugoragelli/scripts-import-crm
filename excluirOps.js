@@ -1,16 +1,16 @@
 const axios = require('axios');
 
 // Configurações
-const queueId = 10;
-const apiKey = '123'; // Substitua pela sua chave real
-const idInicial = 12491;
-const idFinal = 13064;
+const queueId = ID_FILA;
+const apiKey = 'API_KEY'; // Substitua pela sua chave real
+const idInicial = ID_OP_INICIAL_A_SER_EXCLUIDO;
+const idFinal = ID_OP_FINAL_A_SER_EXCLUIDO;
 
 async function removerContatos() {
   for (let id = idInicial; id <= idFinal; id++) {
     try {
       const response = await axios.post(
-        'https://toro.atenderbem.com/int/deleteContact',
+        'https://CLIENTE.atenderbem.com/int/deleteContact',
         {
           queueId,
           apiKey,
