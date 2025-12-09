@@ -1,12 +1,15 @@
 const fs = require('fs');
 const axios = require('axios');
 const csv = require('csv-parser');
+require('dotenv').config();
 
 // Configuração
-const arquivoOriginal = 'NOMEDOARQUIVO.csv'; // Altere aqui para o arquivo desejado
-const apiUrl = 'URL_CLIENTE';
-const queueId = ID_FILA;
-const apiKey = 'API_KEY';
+const arquivoOriginal = `${process.env.NOME_DO_ARQUIVO}.csv`; // Altere aqui para o arquivo desejado
+const apiUrl = `${process.env.URL_CLIENTE}/int/addContact`;
+const queueId = process.env.ID_FILA;
+const apiKey = process.env.API_KEY;
+const linhaInicial = process.env.LINHA_INICIAL_CONTATO_IMPORTAR; // Define a partir de qual linha começar (1 = primeira linha de dados)
+const linhaFinal = process.env.LINHA_FINAL_CONTATO_IMPORTAR; // Define até qual linha processar (deixe vazio para processar até o final)
 
 // Variável para armazenar os dados do CSV
 const dados = [];
@@ -59,7 +62,7 @@ function tratarNumero(numero, dddPadrao = '84') {
 }
 
 // Função para formatar nome
-function formatarRazaoSocial(texto) {
+function formatarNome(texto) {
     if (!texto) return '';
     return texto.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 }
@@ -83,47 +86,71 @@ async function processarPlanilha() {
             .on('error', reject);
     });
 
-    for (const [index, linha] of dados.entries()) {
+    // Ajusta o array para começar da linha especificada
+    const inicio = linhaInicial - 1;
+    const fim = linhaFinal ? Math.min(linhaFinal, dados.length) : dados.length;
+    const dadosFiltrados = dados.slice(inicio, fim);
+    
+    console.log(`Processando linhas ${linhaInicial} até ${fim} (total: ${dadosFiltrados.length} registros)\n`);
+
+    for (const [index, linha] of dadosFiltrados.entries()) {
+        const linhaReal = index + parseInt(linhaInicial) + 1; // +1 por causa do cabeçalho
         // Monta o nome a partir de First Name, Last Name ou Display Name
         const firstName = linha['First Name'] || '';
         const lastName = linha['Last Name'] || '';
         const displayName = linha['Display Name'] || '';
-        
         // Prioriza First Name + Last Name, senão usa Display Name
         let nome = firstName && lastName 
             ? `${firstName} ${lastName}`.trim() 
             : displayName.trim();
-        
         // Pega o telefone (prioriza Mobile Phone, depois Business Phone, depois Home Phone)
         const celularOriginal = linha['Mobile Phone'] || linha['Business Phone'] || linha['Home Phone'] || '';
-        
         // Pega o email
         const email = linha['E-mail Address'] || '';
-        
         // Pega outras informações opcionais
-        const organization = linha['Organization'] || '';
-        const notes = linha['Notes'] || '';
+        const documento = linha['document'] || '';
+        const endereco = linha['endereço'] || '';
+        const numero = linha['número'] || '';
+        const bairro = linha['bairro'] || '';
+        const cidade = linha['cidade'] || '';
+        const estado = linha['estado'] || '';
+        const pais = linha['país'] || '';
+        const cep = linha['cep'] || '';
+        const livre1 = linha['livre1'] || '';
+        const livre2 = linha['livre2'] || '';
 
         if (!nome || !celularOriginal) {
-            console.log(`Linha ${index + 2}: Dados incompletos. Pulando.`);
+            console.log(`Linha ${linhaReal}: Dados incompletos. Pulando.`);
             continue;
         }
 
         const celularTratado = tratarNumero(celularOriginal);
-        const nomeFormatado = formatarRazaoSocial(nome);
+        const nomeFormatado = formatarNome(nome);
 
         const payload = {
             queueId,
             apiKey,
             name: nomeFormatado,
-            number: celularTratado
+            number: celularTratado,
+            document: documento,
+            email: email,
+            address: endereco,
+            houseNumber: numero,
+            neighborhood: bairro,
+            city: cidade,
+            state: estado,
+            country: pais,
+            postalCode: cep,
+            free1: livre1,
+            free2: livre2,
+            tags: []
         };
 
         try {
             const response = await axios.post(apiUrl, payload);
-            console.log(`Linha ${index + 2}: Sucesso - ${nomeFormatado} - ${celularTratado} - ${response.status}`);
+            console.log(`Linha ${linhaReal}: Sucesso - ${response.status} - ${nomeFormatado} - ${celularTratado}`);
         } catch (error) {
-            console.error(`Linha ${index + 2}: Erro - ${error.message}`);
+            console.error(`Linha ${linhaReal}: Erro - ${error.message}`);
         }
 
         await delay(2000);

@@ -1,16 +1,17 @@
 const axios = require('axios');
+require('dotenv').config();
 
 // Configurações
-const queueId = ID_FILA;
-const apiKey = 'API_KEY'; // Substitua pela sua chave real
-const idInicial = ID_OP_INICIAL_A_SER_EXCLUIDO;
-const idFinal = ID_OP_FINAL_A_SER_EXCLUIDO;
+const queueId = process.env.ID_FILA;
+const apiKey = process.env.API_KEY; // Substitua pela sua chave real
+const idInicial = process.env.ID_OP_INICIAL_A_SER_EXCLUIDO;
+const idFinal = process.env.ID_OP_FINAL_A_SER_EXCLUIDO;
 
-async function removerContatos() {
+async function removerOps() {
   for (let id = idInicial; id <= idFinal; id++) {
     try {
       const response = await axios.post(
-        'https://CLIENTE.atenderbem.com/int/deleteContact',
+        `${process.env.URL_CLIENTE}/int/removeOpportunity`,
         {
           queueId,
           apiKey,
@@ -30,4 +31,4 @@ async function removerContatos() {
   }
 }
 
-removerContatos();
+removerOps();
